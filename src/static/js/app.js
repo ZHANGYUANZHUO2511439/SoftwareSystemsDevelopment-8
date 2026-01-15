@@ -1,53 +1,65 @@
 // ========== ZHANGYUANZHUO - ToDo Application ==========
-document.addEventListener('DOMContentLoaded', function() {
-    // 创建显示名字的标题
-    const nameHeader = document.createElement('div');
-    nameHeader.id = 'student-name-header';
-    nameHeader.style.cssText = `
-        background: linear-gradient(135deg, #FF5E62 0%, #FF9966 100%);
-        color: white;
-        padding: 25px;
-        text-align: center;
-        font-size: 36px;
-        font-weight: bold;
-        font-family: 'Arial', 'Helvetica', sans-serif;
-        margin: 0;
-        border-bottom: 5px solid #333;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        letter-spacing: 1px;
-    `;
-    nameHeader.innerHTML = '🎓 <strong>ZHANGYUANZHUO</strong> - ToDo Application 🎓';
+// 立即执行函数，确保名字在 React 渲染前显示
+(function() {
+    function addNameHeader() {
+        // 检查是否已存在
+        if (document.getElementById('student-name-header-zhangyuanzhuo')) {
+            return;
+        }
+        
+        // 创建显示名字的标题
+        const nameHeader = document.createElement('div');
+        nameHeader.id = 'student-name-header-zhangyuanzhuo';
+        nameHeader.style.cssText = `
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+            font-size: 36px;
+            font-weight: bold;
+            font-family: 'Arial', 'Helvetica', sans-serif;
+            margin: 0;
+            border-bottom: 5px solid #333;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            letter-spacing: 2px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        `;
+        nameHeader.innerHTML = '🚀 <strong>ZHANGYUANZHUO</strong> - ToDo Application 🚀';
+        
+        // 插入到页面最顶部
+        document.body.insertBefore(nameHeader, document.body.firstChild);
+        
+        // 为 React 内容添加上边距，避免被遮挡
+        const root = document.getElementById('root');
+        if (root) {
+            root.style.marginTop = '120px';
+        }
+    }
     
-    // 插入到页面最顶部
-    document.body.insertBefore(nameHeader, document.body.firstChild);
-});
+    // 立即执行
+    addNameHeader();
+    
+    // 也监听 DOM 加载完成
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', addNameHeader);
+    }
+    
+    // React 渲染后也检查一次（React 可能会修改 DOM）
+    setTimeout(addNameHeader, 100);
+    setTimeout(addNameHeader, 500);
+    setTimeout(addNameHeader, 1000);
+})();
 // =====================================================
 
-document.addEventListener('DOMContentLoaded', function() {
-    // 创建显示名字的标题
-    const nameHeader = document.createElement('div');
-    nameHeader.id = 'student-name-header';
-    nameHeader.style.cssText = `
-        background: linear-gradient(135deg, #FF5E62 0%, #FF9966 100%);
-        color: white;
-        padding: 25px;
-        text-align: center;
-        font-size: 36px;
-        font-weight: bold;
-        font-family: 'Arial', 'Helvetica', sans-serif;
-        margin: 0;
-        border-bottom: 5px solid #333;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        letter-spacing: 1px;
-    `;
-    nameHeader.innerHTML = '🎓 <strong>ZHANGYUANZHUO</strong> - ToDo Application 🎓';
-    
-    // 插入到页面最顶部
-    document.body.insertBefore(nameHeader, document.body.firstChild);
-});
-// =====================================================
+// 原来的 React 应用代码
+const { Container, Row, Col } = ReactBootstrap;
 
-    const { Container, Row, Col } = ReactBootstrap;
+function App() {
     return (
         <Container>
             <Row>
@@ -116,8 +128,6 @@ function TodoListCard() {
 }
 
 function AddItemForm({ onNewItem }) {
-    const { Form, InputGroup, Button } = ReactBootstrap;
-
     const [newItem, setNewItem] = React.useState('');
     const [submitting, setSubmitting] = React.useState(false);
 
@@ -138,34 +148,35 @@ function AddItemForm({ onNewItem }) {
     };
 
     return (
-        <Form onSubmit={submitNewItem}>
-            <InputGroup className="mb-3">
-                <Form.Control
+        <form onSubmit={submitNewItem}>
+            <div className="input-group mb-3">
+                <input
+                    className="form-control"
                     value={newItem}
                     onChange={e => setNewItem(e.target.value)}
                     type="text"
                     placeholder="New Item"
                     aria-describedby="basic-addon1"
                 />
-                <InputGroup.Append>
-                    <Button
+                <div className="input-group-append">
+                    <button
                         type="submit"
-                        variant="success"
-                        disabled={!newItem.length}
-                        className={submitting ? 'disabled' : ''}
+                        className="btn btn-success"
+                        disabled={!newItem.length || submitting}
                     >
                         {submitting ? 'Adding...' : 'Add Item'}
-                    </Button>
-                </InputGroup.Append>
-            </InputGroup>
-        </Form>
+                    </button>
+                </div>
+            </div>
+        </form>
     );
 }
 
 function ItemDisplay({ item, onItemUpdate, onItemRemoval }) {
-    const { Container, Row, Col, Button } = ReactBootstrap;
+    const [isEditing, setIsEditing] = React.useState(false);
+    const [editedName, setEditedName] = React.useState(item.name);
 
-    const toggleCompletion = () => {
+    const toggleCompleted = () => {
         fetch(`/items/${item.id}`, {
             method: 'PUT',
             body: JSON.stringify({
@@ -178,6 +189,22 @@ function ItemDisplay({ item, onItemUpdate, onItemRemoval }) {
             .then(onItemUpdate);
     };
 
+    const saveEdit = () => {
+        fetch(`/items/${item.id}`, {
+            method: 'PUT',
+            body: JSON.stringify({
+                name: editedName,
+                completed: item.completed,
+            }),
+            headers: { 'Content-Type': 'application/json' },
+        })
+            .then(r => r.json())
+            .then(updatedItem => {
+                onItemUpdate(updatedItem);
+                setIsEditing(false);
+            });
+    };
+
     const removeItem = () => {
         fetch(`/items/${item.id}`, { method: 'DELETE' }).then(() =>
             onItemRemoval(item),
@@ -185,44 +212,73 @@ function ItemDisplay({ item, onItemUpdate, onItemRemoval }) {
     };
 
     return (
-        <Container fluid className={`item ${item.completed && 'completed'}`}>
-            <Row>
-                <Col xs={1} className="text-center">
-                    <Button
-                        className="toggles"
-                        size="sm"
-                        variant="link"
-                        onClick={toggleCompletion}
-                        aria-label={
-                            item.completed
-                                ? 'Mark item as incomplete'
-                                : 'Mark item as complete'
-                        }
-                    >
-                        <i
-                            onClick={toggleCompletion}
-                            className={`far ${
-                                item.completed ? 'fa-check-square' : 'fa-square'
-                            }`}
+        <div className="card mb-3">
+            <div className="card-body">
+                {isEditing ? (
+                    <div className="input-group">
+                        <input
+                            className="form-control"
+                            value={editedName}
+                            onChange={e => setEditedName(e.target.value)}
+                            type="text"
                         />
-                    </Button>
-                </Col>
-                <Col xs={10} className="name">
-                    {item.name}
-                </Col>
-                <Col xs={1} className="text-center remove">
-                    <Button
-                        size="sm"
-                        variant="link"
-                        onClick={removeItem}
-                        aria-label="Remove Item"
-                    >
-                        <i className="fa fa-trash text-danger" />
-                    </Button>
-                </Col>
-            </Row>
-        </Container>
+                        <div className="input-group-append">
+                            <button
+                                className="btn btn-primary"
+                                onClick={saveEdit}
+                            >
+                                Save
+                            </button>
+                            <button
+                                className="btn btn-secondary"
+                                onClick={() => setIsEditing(false)}
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                ) : (
+                    <React.Fragment>
+                        <div className="form-check">
+                            <input
+                                className="form-check-input"
+                                type="checkbox"
+                                checked={item.completed}
+                                onChange={toggleCompleted}
+                                id={`item-${item.id}`}
+                            />
+                            <label
+                                className="form-check-label"
+                                htmlFor={`item-${item.id}`}
+                                style={{
+                                    textDecoration: item.completed
+                                        ? 'line-through'
+                                        : 'none',
+                                }}
+                            >
+                                {item.name}
+                            </label>
+                        </div>
+                        <div className="mt-2">
+                            <button
+                                className="btn btn-sm btn-primary mr-2"
+                                onClick={() => setIsEditing(true)}
+                            >
+                                Edit
+                            </button>
+                            <button
+                                className="btn btn-sm btn-danger"
+                                onClick={removeItem}
+                            >
+                                Delete
+                            </button>
+                        </div>
+                    </React.Fragment>
+                )}
+            </div>
+        </div>
     );
 }
 
+// 渲染 React 应用
 ReactDOM.render(<App />, document.getElementById('root'));
