@@ -23,30 +23,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 // =====================================================
 
-document.addEventListener('DOMContentLoaded', function() {
-    // 创建显示名字的标题
-    const nameHeader = document.createElement('div');
-    nameHeader.id = 'student-name-header';
-    nameHeader.style.cssText = `
-        background: linear-gradient(135deg, #FF5E62 0%, #FF9966 100%);
-        color: white;
-        padding: 25px;
-        text-align: center;
-        font-size: 36px;
-        font-weight: bold;
-        font-family: 'Arial', 'Helvetica', sans-serif;
-        margin: 0;
-        border-bottom: 5px solid #333;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        letter-spacing: 1px;
-    `;
-    nameHeader.innerHTML = '🎓 <strong>ZHANGYUANZHUO</strong> - ToDo Application 🎓';
-    
-    // 插入到页面最顶部
-    document.body.insertBefore(nameHeader, document.body.firstChild);
-});
-// =====================================================
-
     const { Container, Row, Col } = ReactBootstrap;
     return (
         <Container>
