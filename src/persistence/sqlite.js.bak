@@ -45,8 +45,8 @@ async function getItems() {
                 rows.map(item =>
                     Object.assign({}, item, {
                         completed: item.completed === 1,
-                    })
-                )
+                    }),
+                ),
             );
         });
     });
